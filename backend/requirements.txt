@@ -1,0 +1,14 @@
+Django==4.2.0
+djangorestframework==3.14.0
+djangorestframework-simplejwt==5.3.1
+django-cors-headers==4.3.1
+django-filter==24.1
+PyMySQL==1.1.0
+python-dotenv==1.0.0
+cryptography>=42.0.0
+django-otp==1.2.4
+pyotp==2.9.0
+qrcode==7.4.2
+social-auth-app-django==5.4.0
+requests-oauthlib==2.0.0
+sendgrid==6.11.0
