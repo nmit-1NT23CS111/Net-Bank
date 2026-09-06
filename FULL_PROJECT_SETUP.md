@@ -139,14 +139,14 @@ tail -f logs/debug.log  # If you set up logging
 ### Backend (d:\programme files\net-bank\backend\.env)
 ```
 # Django
-DJANGO_SECRET_KEY=django-insecure-net-bank-local-dev-key
+DJANGO_SECRET_KEY=replace-with-a-random-secret
 DJANGO_DEBUG=true
 DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
 
 # Database
 MYSQL_DATABASE=net_bank
 MYSQL_USER=root
-MYSQL_PASSWORD=Mysql@123
+MYSQL_PASSWORD=replace-with-your-local-database-password
 MYSQL_HOST=127.0.0.1
 MYSQL_PORT=3306
 

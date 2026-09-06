@@ -1,10 +1,9 @@
 import React, { useState, FormEvent } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { apiService } from '@/services/api.service'
 import { getApiErrorMessage } from '@/utils/apiErrors'
 
 export const ForgotPasswordPage: React.FC = () => {
-  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
   const [successMessage, setSuccessMessage] = useState('')

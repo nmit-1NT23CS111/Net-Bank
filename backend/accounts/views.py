@@ -455,6 +455,7 @@ class GoogleOAuthCallbackView(views.APIView):
         serializer.is_valid(raise_exception=True)
 
         code = serializer.validated_data["code"]
+        provider = (serializer.validated_data.get("provider") or "google").strip().lower()
         frontend_url = request.data.get("frontend_url", settings.FRONTEND_URL)
 
         try:
@@ -482,56 +483,86 @@ class GoogleOAuthCallbackView(views.APIView):
 
             # Check if OAuth provider exists
             oauth_provider = OAuthProvider.objects.filter(
-                provider="google",
+                provider=provider,
                 provider_id=userinfo["id"],
             ).first()
 
             if oauth_provider:
-                # Existing user
+                # Existing user via provider link
                 user = oauth_provider.user
             else:
-                # New user - create account
-                username = userinfo["email"].split("@")[0]
-                counter = 1
-                while CustomUser.objects.filter(username=username).exists():
-                    username = f"{userinfo['email'].split('@')[0]}{counter}"
-                    counter += 1
+                # If a user exists with this email, link Google to their account
+                user = CustomUser.objects.filter(email=userinfo["email"]).first()
 
-                user = CustomUser.objects.create_user(
-                    username=username,
-                    email=userinfo["email"],
-                    first_name=userinfo.get("given_name", ""),
-                    last_name=userinfo.get("family_name", ""),
-                    email_verified=True,  # Google emails are pre-verified
-                    is_active=True,
-                )
+                if user:
+                    user.email_verified = True
+                    user.is_active = True
+                    user.save(update_fields=["email_verified", "is_active"])
 
-                # Create OAuth provider link
-                OAuthProvider.objects.create(
-                    user=user,
-                    provider="google",
-                    provider_id=userinfo["id"],
-                    provider_email=userinfo["email"],
-                    provider_username=userinfo.get("email", ""),
-                    access_token=token_data["access_token"],
-                    refresh_token=token_data.get("refresh_token", ""),
-                    expires_at=timezone.now() + timedelta(seconds=token_data.get("expires_in", 3600)),
-                    profile_picture=userinfo.get("picture", ""),
-                )
+                    OAuthProvider.objects.create(
+                        user=user,
+                        provider=provider,
+                        provider_id=userinfo["id"],
+                        provider_email=userinfo["email"],
+                        provider_username=userinfo.get("email", ""),
+                        access_token=token_data["access_token"],
+                        refresh_token=token_data.get("refresh_token", ""),
+                        expires_at=timezone.now() + timedelta(seconds=token_data.get("expires_in", 3600)),
+                        profile_picture=userinfo.get("picture", ""),
+                    )
 
-                # Send welcome email
-                EmailService.send_oauth_welcome_email(user)
+                    AuditLog.objects.create(
+                        user=user,
+                        action="link_oauth",
+                        resource_type="user",
+                        resource_id=str(user.id),
+                        ip_address=get_client_ip(request) or "127.0.0.1",
+                        user_agent=request.META.get("HTTP_USER_AGENT", "")[:500],
+                        status="success",
+                        new_values={"email": user.email, "provider": provider},
+                    )
+                else:
+                    username = userinfo["email"].split("@")[0]
+                    counter = 1
+                    while CustomUser.objects.filter(username=username).exists():
+                        username = f"{userinfo['email'].split('@')[0]}{counter}"
+                        counter += 1
 
-                AuditLog.objects.create(
-                    user=user,
-                    action="register_oauth",
-                    resource_type="user",
-                    resource_id=str(user.id),
-                    ip_address=get_client_ip(request) or "127.0.0.1",
-                    user_agent=request.META.get("HTTP_USER_AGENT", "")[:500],
-                    status="success",
-                    new_values={"username": user.username, "email": user.email, "provider": "google"},
-                )
+                    user = CustomUser.objects.create_user(
+                        username=username,
+                        email=userinfo["email"],
+                        first_name=userinfo.get("given_name", ""),
+                        last_name=userinfo.get("family_name", ""),
+                        email_verified=True,  # Google emails are pre-verified
+                        is_active=True,
+                    )
+
+                    # Create OAuth provider link
+                    OAuthProvider.objects.create(
+                        user=user,
+                        provider=provider,
+                        provider_id=userinfo["id"],
+                        provider_email=userinfo["email"],
+                        provider_username=userinfo.get("email", ""),
+                        access_token=token_data["access_token"],
+                        refresh_token=token_data.get("refresh_token", ""),
+                        expires_at=timezone.now() + timedelta(seconds=token_data.get("expires_in", 3600)),
+                        profile_picture=userinfo.get("picture", ""),
+                    )
+
+                    # Send welcome email
+                    EmailService.send_oauth_welcome_email(user)
+
+                    AuditLog.objects.create(
+                        user=user,
+                        action="register_oauth",
+                        resource_type="user",
+                        resource_id=str(user.id),
+                        ip_address=get_client_ip(request) or "127.0.0.1",
+                        user_agent=request.META.get("HTTP_USER_AGENT", "")[:500],
+                        status="success",
+                        new_values={"username": user.username, "email": user.email, "provider": provider},
+                    )
 
             # Generate JWT tokens
             from rest_framework_simplejwt.tokens import RefreshToken

@@ -29,7 +29,7 @@ Get app password from: https://myaccount.google.com/apppasswords
 5. Update backend/.env:
 ```
 GOOGLE_OAUTH_CLIENT_ID=your-real-client-id.apps.googleusercontent.com
-GOOGLE_OAUTH_CLIENT_SECRET=your-real-secret
+GOOGLE_OAUTH_CLIENT_SECRET=your-client-secret
 ```
 6. Update frontend/.env (already created):
 ```

@@ -57,7 +57,7 @@ You'll see a popup with:
 **Example output:**
 ```
 Client ID: 123456789-abcdefghijklmnop.apps.googleusercontent.com
-Client Secret: GOCSPX-xxxxxxxxxxxxxxxxxxx
+Client Secret: your-client-secret
 ```
 
 ---
@@ -76,7 +76,7 @@ GOOGLE_OAUTH_CLIENT_SECRET=your-secret
 Replace with YOUR actual credentials:
 ```
 GOOGLE_OAUTH_CLIENT_ID=123456789-abcdefghijklmnop.apps.googleusercontent.com
-GOOGLE_OAUTH_CLIENT_SECRET=GOCSPX-xxxxxxxxxxxxxxxxxxx
+GOOGLE_OAUTH_CLIENT_SECRET=your-client-secret
 ```
 
 ### File 2: Frontend
@@ -145,7 +145,7 @@ sessionStorage.clear()
 Open `backend/.env` and verify:
 ```
 GOOGLE_OAUTH_CLIENT_ID=xxx-yyy.apps.googleusercontent.com  (NOT "your-client-id")
-GOOGLE_OAUTH_CLIENT_SECRET=GOCSPX-zzz  (NOT "your-secret")
+GOOGLE_OAUTH_CLIENT_SECRET=your-client-secret  (use the value from your secret manager)
 ```
 
 ### Frontend Check

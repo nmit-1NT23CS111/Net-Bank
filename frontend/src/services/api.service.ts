@@ -10,6 +10,14 @@ import {
   ProfileResponse,
   TransactionActionResponse,
 } from '@/models/banking.models'
+import {
+  CreditAssessmentResponse,
+  LoanApplicationsResponse,
+  LoanOfferAcceptResponse,
+  LoanOffer,
+  LoansResponse,
+  RepaymentsResponse,
+} from '@/models/lending.models'
 
 export const API_URL = environment.apiUrl.replace(/\/$/, '')
 
@@ -208,6 +216,51 @@ export class ApiService {
 
   unlinkProvider(provider: string): Promise<{ success: boolean; message: string }> {
     return this.client.post('/auth/oauth/unlink/', { provider }).then((res) => res.data)
+  }
+
+  // Lending endpoints
+  getLoanApplications(): Promise<LoanApplicationsResponse> {
+    return this.client.get('/loans/applications/').then((res) => res.data)
+  }
+
+  createLoanApplication(payload: {
+    requested_amount: string
+    requested_tenure_months: number
+    purpose: string
+  }): Promise<{ success: boolean; application: any }> {
+    return this.client.post('/loans/applications/', payload).then((res) => res.data)
+  }
+
+  submitLoanApplication(applicationId: string): Promise<{ success: boolean; application: any }> {
+    return this.client.post(`/loans/applications/${applicationId}/submit/`).then((res) => res.data)
+  }
+
+  evaluateLoanApplication(applicationId: string): Promise<{ success: boolean; offers: LoanOffer[]; decision: string; assessment?: CreditAssessmentResponse['assessment']; application?: any; eligible?: boolean; maximum_eligible_amount?: string; risk_category?: string; credit_score?: number; reasons?: string[]; risk_factors?: string[] }> {
+    return this.client.post(`/loans/applications/${applicationId}/evaluate/`).then((res) => res.data)
+  }
+
+  getCreditAssessment(applicationId: string): Promise<CreditAssessmentResponse> {
+    return this.client.get(`/credit/assessments/${applicationId}/`).then((res) => res.data)
+  }
+
+  getLenders(): Promise<{ success?: boolean; results?: any[]; count?: number; next?: string | null; previous?: string | null }> {
+    return this.client.get('/lenders/').then((res) => res.data)
+  }
+
+  acceptLoanOffer(offerId: string): Promise<LoanOfferAcceptResponse> {
+    return this.client.post(`/loans/offers/${offerId}/accept/`).then((res) => res.data)
+  }
+
+  getLoans(): Promise<LoansResponse> {
+    return this.client.get('/loans/').then((res) => res.data)
+  }
+
+  getRepayments(loanId: string): Promise<RepaymentsResponse> {
+    return this.client.get(`/loans/${loanId}/repayments/`).then((res) => res.data)
+  }
+
+  payRepayment(repaymentId: string, payload: { payment_amount: string }): Promise<{ success: boolean; message: string; repayment: any }> {
+    return this.client.post(`/repayments/${repaymentId}/pay/`, payload).then((res) => res.data)
   }
 }
 

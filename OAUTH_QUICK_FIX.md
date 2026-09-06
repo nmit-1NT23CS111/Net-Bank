@@ -15,7 +15,7 @@ Go to: https://console.cloud.google.com
 4. Add redirect: `http://localhost:5173/auth/google/callback`
 5. Copy:
    - **Client ID**: `abc123-xxx.apps.googleusercontent.com`
-   - **Client Secret**: `GOCSPX-yyyyy`
+   - **Client Secret**: your client secret
 
 ### ✅ STEP 2: Update Backend .env (1 min)
 File: `d:\programme files\net-bank\backend\.env`
@@ -29,7 +29,7 @@ GOOGLE_OAUTH_CLIENT_SECRET=your-secret
 With:
 ```
 GOOGLE_OAUTH_CLIENT_ID=abc123-xxx.apps.googleusercontent.com
-GOOGLE_OAUTH_CLIENT_SECRET=GOCSPX-yyyyy
+GOOGLE_OAUTH_CLIENT_SECRET=your-client-secret
 ```
 
 ### ✅ STEP 3: Update Frontend .env (30 sec)
@@ -77,7 +77,7 @@ npm run dev
 **From Google Console:**
 ```
 Client ID:     [Your 123-xxx.apps.googleusercontent.com]
-Client Secret: [Your GOCSPX-yyyyy]
+Client Secret: [your client secret]
 ```
 
 **In backend/.env:**

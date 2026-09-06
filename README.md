@@ -18,6 +18,8 @@ cd backend
 
 The setup script creates the MySQL database, writes `backend/.env`, installs Python dependencies, runs migrations, and seeds demo data.
 
+Copy `backend/.env.example` to `backend/.env` for manual setup. Never commit either `.env` file or paste production credentials into source code. Configure OAuth and SMTP values only through environment variables.
+
 ## Frontend
 
 ```powershell
@@ -28,7 +30,6 @@ npm run dev
 
 The React app runs at `http://localhost:5173` and talks to `http://localhost:8000/api/v1`.
 
-## Demo Login
+## Local Demo Login
 
-- Customer: `demo@netbank.local` / `Demo@12345`
-- Admin: `admin` / `Admin@12345`
+The seed command creates local demo users using the values documented by the command output. Do not use these accounts or passwords outside a local development database.

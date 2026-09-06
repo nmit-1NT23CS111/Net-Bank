@@ -1,4 +1,6 @@
 from decimal import Decimal
+import os
+import secrets
 
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
@@ -14,13 +16,16 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         User = get_user_model()
+        admin_password = os.getenv("SEED_ADMIN_PASSWORD") or secrets.token_urlsafe(18)
+        demo_password = os.getenv("SEED_DEMO_PASSWORD") or secrets.token_urlsafe(18)
+        recipient_password = os.getenv("SEED_RECIPIENT_PASSWORD") or secrets.token_urlsafe(18)
 
         with db_transaction.atomic():
             admin = self._ensure_user(
                 User,
                 username="admin",
                 email="admin@netbank.local",
-                password="Admin@12345",
+                password=admin_password,
                 first_name="Net",
                 last_name="Admin",
                 is_staff=True,
@@ -30,7 +35,7 @@ class Command(BaseCommand):
                 User,
                 username="demo",
                 email="demo@netbank.local",
-                password="Demo@12345",
+                password=demo_password,
                 first_name="Demo",
                 last_name="Customer",
                 phone_number="+919999999999",
@@ -42,7 +47,7 @@ class Command(BaseCommand):
                 User,
                 username="recipient",
                 email="recipient@netbank.local",
-                password="Recipient@12345",
+                password=recipient_password,
                 first_name="Riya",
                 last_name="Recipient",
                 phone_number="+918888888888",
@@ -98,8 +103,8 @@ class Command(BaseCommand):
             self._ensure_audit_log(admin, "admin_action", "seed", "demo-data")
 
         self.stdout.write(self.style.SUCCESS("Demo data ready."))
-        self.stdout.write("Customer login: demo@netbank.local / Demo@12345")
-        self.stdout.write("Admin login: admin / Admin@12345")
+        self.stdout.write(f"Customer login: demo@netbank.local / {demo_password}")
+        self.stdout.write(f"Admin login: admin / {admin_password}")
         self.stdout.write("Recipient account for transfers: 2000000001")
 
     def _ensure_user(self, User, username, email, password, **defaults):

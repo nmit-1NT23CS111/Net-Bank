@@ -1,6 +1,6 @@
 param(
     [string]$RootUser = "root",
-    [string]$RootPassword = "Mysql@123",
+    [string]$RootPassword = "",
     [string]$DatabaseName = "net_bank",
     [switch]$SkipSeed
 )
@@ -25,6 +25,10 @@ if ($env:MYSQL_ROOT_PASSWORD) {
     $RootPassword = $env:MYSQL_ROOT_PASSWORD
 }
 
+if (-not $RootPassword) {
+    $RootPassword = Read-Host "MySQL root password"
+}
+
 $setupSql = @"
 CREATE DATABASE IF NOT EXISTS ``$DatabaseName`` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 FLUSH PRIVILEGES;
@@ -46,7 +50,7 @@ Invoke-Step "Creating MySQL database" {
 }
 
 $envContent = @"
-DJANGO_SECRET_KEY=django-insecure-net-bank-local-dev-key
+DJANGO_SECRET_KEY=$([guid]::NewGuid().ToString())-$([guid]::NewGuid().ToString())
 DJANGO_DEBUG=true
 DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
 CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
@@ -100,5 +104,4 @@ Write-Host "Setup complete." -ForegroundColor Green
 Write-Host "Backend:  cd `"$BackendDir`"; .\venv\Scripts\python.exe manage.py runserver 8000"
 Write-Host "Frontend: cd `"$((Resolve-Path "$BackendDir\..\frontend").Path)`"; npm run dev"
 Write-Host ""
-Write-Host "Demo login: demo@netbank.local / Demo@12345"
-Write-Host "Admin login: admin / Admin@12345"
+Write-Host "Run 'python manage.py seed_demo' to create local demo data and receive generated credentials."

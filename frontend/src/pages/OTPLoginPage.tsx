@@ -1,12 +1,11 @@
 import React, { useState, FormEvent, useEffect } from 'react'
-import { useNavigate, useLocation, Link } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { apiService } from '@/services/api.service'
 import { getApiErrorMessage } from '@/utils/apiErrors'
 
 export const OTPLoginPage: React.FC = () => {
   const navigate = useNavigate()
-  const location = useLocation()
   const { login: contextLogin } = useAuth()
   const [step, setStep] = useState<'email' | 'otp'>('email')
   const [email, setEmail] = useState('')
@@ -45,7 +44,7 @@ export const OTPLoginPage: React.FC = () => {
     setErrorMessage('')
 
     try {
-      const response = await apiService.verifyOTP({ email, otp })
+      await apiService.verifyOTP({ email, otp })
       await contextLogin(email, '') // Login with OTP response
       navigate('/dashboard', { replace: true })
     } catch (error) {

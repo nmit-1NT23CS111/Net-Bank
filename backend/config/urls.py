@@ -21,6 +21,7 @@ from accounts.views import (
     UnlinkOAuthProviderView,
 )
 from core.views import DashboardSummaryView, HealthCheckView
+from lending.views import CreditAssessmentView, LenderViewSet, LoanApplicationViewSet, LoanOfferViewSet, LoanViewSet, RepaymentViewSet
 from transactions.views import AuditLogViewSet, DepositView, TransactionViewSet, TransferView, WithdrawalView
 
 
@@ -55,6 +56,19 @@ urlpatterns = [
                 path("users/change-password/", ChangePasswordView.as_view(), name="change-password"),
                 # Dashboard endpoint
                 path("dashboard/summary/", DashboardSummaryView.as_view(), name="dashboard-summary"),
+                # Lending endpoints
+                path("loans/applications/", LoanApplicationViewSet.as_view({"get": "list", "post": "create"}), name="loan-applications"),
+                path("loans/applications/<uuid:pk>/", LoanApplicationViewSet.as_view({"get": "retrieve"}), name="loan-application-detail"),
+                path("loans/applications/<uuid:pk>/submit/", LoanApplicationViewSet.as_view({"post": "submit"}), name="loan-application-submit"),
+                path("loans/applications/<uuid:pk>/evaluate/", LoanApplicationViewSet.as_view({"post": "evaluate"}), name="loan-application-evaluate"),
+                path("credit/assess/", CreditAssessmentView.as_view(), name="credit-assess"),
+                path("credit/assessments/<uuid:application_id>/", CreditAssessmentView.as_view(), name="credit-assessment-detail"),
+                path("lenders/", LenderViewSet.as_view({"get": "list"}), name="lenders"),
+                path("loans/offers/<uuid:pk>/accept/", LoanOfferViewSet.as_view({"post": "accept"}), name="loan-offer-accept"),
+                path("loans/", LoanViewSet.as_view({"get": "list"}), name="loans"),
+                path("loans/<uuid:pk>/", LoanViewSet.as_view({"get": "retrieve"}), name="loan-detail"),
+                path("loans/<uuid:loan_id>/repayments/", RepaymentViewSet.as_view({"get": "list"}), name="loan-repayments"),
+                path("repayments/<uuid:pk>/pay/", RepaymentViewSet.as_view({"post": "pay"}), name="repayment-pay"),
                 # Transaction endpoints
                 path("transactions/deposit/", DepositView.as_view(), name="deposit"),
                 path("transactions/withdraw/", WithdrawalView.as_view(), name="withdraw"),

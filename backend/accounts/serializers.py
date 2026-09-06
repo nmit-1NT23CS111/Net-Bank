@@ -276,7 +276,7 @@ class VerifyOTPSerializer(serializers.Serializer):
 
 class OAuthCallbackSerializer(serializers.Serializer):
     """Handle OAuth provider callback"""
-    provider = serializers.CharField(max_length=20)
+    provider = serializers.CharField(max_length=20, required=False, allow_blank=True)
     code = serializers.CharField()
     state = serializers.CharField(required=False, allow_blank=True)
 

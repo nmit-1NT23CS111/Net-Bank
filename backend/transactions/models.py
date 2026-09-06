@@ -86,6 +86,7 @@ class AuditLog(models.Model):
         ("transaction_completed", "Transaction Completed"),
         ("transaction_failed", "Transaction Failed"),
         ("transaction_reversed", "Transaction Reversed"),
+        ("credit_decision", "Credit Decision"),
         ("admin_action", "Admin Action"),
     )
 

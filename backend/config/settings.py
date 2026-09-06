@@ -1,4 +1,5 @@
 from datetime import timedelta
+from decimal import Decimal
 import os
 from pathlib import Path
 
@@ -13,7 +14,9 @@ pymysql.install_as_MySQLdb()
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "django-insecure-net-bank-development-key-change-me")
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
+if not SECRET_KEY:
+    raise RuntimeError("DJANGO_SECRET_KEY must be set in backend/.env or the environment")
 DEBUG = os.getenv("DJANGO_DEBUG", "true").lower() == "true"
 ALLOWED_HOSTS = [
     host.strip()
@@ -35,6 +38,7 @@ INSTALLED_APPS = [
     "accounts.apps.AccountsConfig",
     "transactions.apps.TransactionsConfig",
     "core.apps.CoreConfig",
+    "lending.apps.LendingConfig",
 ]
 
 MIDDLEWARE = [
@@ -74,7 +78,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.mysql",
         "NAME": os.getenv("MYSQL_DATABASE", "net_bank"),
         "USER": os.getenv("MYSQL_USER", "root"),
-        "PASSWORD": os.getenv("MYSQL_PASSWORD", "Mysql@123"),
+        "PASSWORD": os.getenv("MYSQL_PASSWORD", ""),
         "HOST": os.getenv("MYSQL_HOST", "127.0.0.1"),
         "PORT": os.getenv("MYSQL_PORT", "3306"),
         "OPTIONS": {
@@ -98,6 +102,9 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+MINIMUM_ACCOUNT_BALANCE = Decimal(os.getenv("MINIMUM_ACCOUNT_BALANCE", "0.00"))
+MAX_TRANSFERS_PER_HOUR = int(os.getenv("MAX_TRANSFERS_PER_HOUR", "10"))
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "accounts.CustomUser"

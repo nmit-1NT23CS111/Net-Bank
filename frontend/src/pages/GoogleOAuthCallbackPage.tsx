@@ -15,6 +15,7 @@ export const GoogleOAuthCallbackPage: React.FC = () => {
     const handleCallback = async () => {
       const code = searchParams.get('code')
       const state = searchParams.get('state')
+      const storedState = sessionStorage.getItem('oauth_state')
 
       if (!code) {
         setStatus('error')
@@ -22,17 +23,22 @@ export const GoogleOAuthCallbackPage: React.FC = () => {
         return
       }
 
+      if (storedState && state && storedState !== state) {
+        setStatus('error')
+        setMessage('Invalid OAuth state. Please try again.')
+        sessionStorage.removeItem('oauth_state')
+        return
+      }
+
       try {
         const response = await apiService.googleOAuthCallback({
           code,
-          state,
+          state: state ?? undefined,
           frontend_url: window.location.origin,
         })
 
-        // Store tokens and user info
-        localStorage.setItem('net-bank-access-token', response.access)
-        localStorage.setItem('net-bank-refresh-token', response.refresh)
-        localStorage.setItem('net-bank-user', JSON.stringify(response.user))
+        setSession(response.access, response.refresh, response.user)
+        sessionStorage.removeItem('oauth_state')
 
         setStatus('success')
         setMessage('Login successful! Redirecting...')

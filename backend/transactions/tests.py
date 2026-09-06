@@ -7,7 +7,7 @@ from accounts.models import Account, CustomUser
 
 class AccountWithdrawalTests(TestCase):
     def test_account_cannot_withdraw_more_than_balance(self):
-        user = CustomUser.objects.create_user(username="demo", email="demo@example.com", password="Demo@12345")
+        user = CustomUser.objects.create_user(username="demo", email="demo@example.com", password="unit-test-only")
         account = Account.objects.create(
             user=user,
             account_number="1234567890",

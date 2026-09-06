@@ -87,7 +87,8 @@ class Account(models.Model):
     def can_withdraw(self, amount):
         from django.conf import settings
 
-        return self.balance - amount >= Decimal(str(settings.MINIMUM_ACCOUNT_BALANCE))
+        minimum_balance = getattr(settings, "MINIMUM_ACCOUNT_BALANCE", Decimal("0.00"))
+        return self.balance - amount >= Decimal(str(minimum_balance))
 
     def close_account(self):
         self.status = "closed"
